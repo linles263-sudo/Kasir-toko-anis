@@ -507,7 +507,13 @@ function selesaiBayar(metode) {
     
     // PANGGIL FITUR CETAK + BUKA LACI
     cetakDanBukaLaci(total, metode, transaksi, mauCetak);
+        // AMBIL DETAIL NAMA BARANG
+    let daftarItem = keranjang.map(item => {
+        return `${item.nama} ${item.qty}x @${item.harga.toLocaleString('id-ID')}`;
+    }).join(" | ");
     
+    transaksi.items = daftarItem;
+ 
     laporan.push(transaksi);
     localStorage.setItem('laporanJual', JSON.stringify(laporan));
     
@@ -540,6 +546,7 @@ function bukaLaporan() {
             div.innerHTML += `<div class="laporan-item">
                 <b>#${i+1} - ${trx.waktu}</b><br>
                 Kasir: ${trx.kasir} | ${trx.metode}<br>
+                                Items: ${trx.items || '-'} <br>
                 Total: Rp ${trx.total.toLocaleString('id-ID')}
             </div>`;
         });
