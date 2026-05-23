@@ -135,8 +135,9 @@ if(hariIni > LISENSI.expired){
     </div>
 
     <div class="scan-cepat">
-        <input type="text" id="inputScanCepat" placeholder="Klik sini lalu tembak barcode..." 
-               onkeypress="if(event.key==='Enter') scanCepat()">
+    <input type="number" id="inputQty" placeholder="Qty" value="1" min="1">
+    <input type="text" id="inputScanCepat" placeholder="Klik sini lalu tembak barcode..." 
+           onkeypress="if(event.key==='Enter') scanCepat()">
     </div>
 
     <div class="produk-header">
@@ -285,11 +286,13 @@ if (namaKasir) {
 
 function scanCepat() {
     const barcode = document.getElementById('inputScanCepat').value.trim();
+    const qty = parseInt(document.getElementById('inputQty').value) || 1;
     document.getElementById('inputScanCepat').value = '';
+    document.getElementById('inputQty').value = '1';
     if (!barcode) return;
     playBeep();
     const item = produk.find(p => p.barcode == barcode);
-    if(item) tambahKeranjang(item.id);
+    if(item) tambahKeranjang(item.id, qty);
     else alert('Barang tidak ditemukan! Tambah dulu via tombol +');
 }
 
@@ -405,12 +408,24 @@ function onScanSuccess(decodedText) {
     else alert('Barang tidak ditemukan! Tambah dulu via tombol +');
 }
 
-function tambahKeranjang(id) {
+function tambahKeranjang(id, qty = 1) {
     const barang = produk.find(p => p.id === id);
-    if (barang.stok <= 0) return alert('Stok habis!');
-    const diKeranjang = keranjang.find(k => k.id === id);
-    if (diKeranjang) diKeranjang.qty++;
-    else keranjang.push({ ...barang, qty: 1 });
+    if (!barang) return;
+    if (barang.stok < qty) return alert('Stok tidak cukup!');
+    
+    const diKeranjang = keranjang.find(k => k.idProduk === id);
+    if (diKeranjang) {
+        diKeranjang.qty += qty;
+    } else {
+        keranjang.push({ 
+            idItem: Date.now() + Math.random(),
+            idProduk: id,
+            nama: barang.nama,
+            harga: barang.harga,
+            qty: qty 
+        });
+    }
+    localStorage.setItem('keranjangTemp', JSON.stringify(keranjang));
     updateKeranjang();
 }
 
@@ -427,7 +442,53 @@ function updateKeranjang() {
     document.getElementById('totalBayar').innerText = total.toLocaleString('id-ID');
     document.getElementById('totalCash').innerText = total.toLocaleString('id-ID');
 }
+function bukaKeranjang() {
+    const div = document.getElementById('isiKeranjang');
+    div.innerHTML = '';
+    if(keranjang.length === 0) {
+        div.innerHTML = '<p>Keranjang kosong</p>';
+    } else {
+        keranjang.forEach(item => {
+            div.innerHTML += `
+            <div class="keranjang-item">
+                <div>
+                    <b>${item.nama}</b><br>
+                    Rp${item.harga.toLocaleString('id-ID')} x ${item.qty}
+                </div>
+                <div class="qty-control">
+                    <button class="qty-btn" onclick="ubahQty('${item.idItem}', -1)">-</button>
+                    <span>${item.qty}</span>
+                    <button class="qty-btn" onclick="ubahQty('${item.idItem}', 1)">+</button>
+                    <button class="btn-hapus-item" onclick="hapusItem('${item.idItem}')">X</button>
+                </div>
+            </div>`;
+        });
+    }
+    document.getElementById('modalKeranjang').style.display = 'block';
+}
 
+function ubahQty(idItem, tambah) {
+    const item = keranjang.find(k => k.idItem == idItem);
+    if(!item) return;
+    
+    item.qty += tambah;
+    if(item.qty <= 0) {
+        hapusItem(idItem);
+    } else {
+        localStorage.setItem('keranjangTemp', JSON.stringify(keranjang));
+        updateKeranjang();
+        bukaKeranjang();
+    }
+}
+
+function hapusItem(idItem) {
+    if(confirm('Hapus item ini dari keranjang?')) {
+        keranjang = keranjang.filter(k => k.idItem != idItem);
+        localStorage.setItem('keranjangTemp', JSON.stringify(keranjang));
+        updateKeranjang();
+        bukaKeranjang();
+    }
+    }
 function resetKeranjang() {
     if (confirm('Kosongkan keranjang?')) {
         keranjang = [];
