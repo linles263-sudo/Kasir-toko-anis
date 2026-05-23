@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KASIR DIGITAL ANIS</title>
     
-    <!-- PWA SETUP -->
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -21,7 +20,7 @@
         .header .title h1 { font-size: 14px; font-weight: normal; }
         .header .title h2 { font-size: 24px; text-transform: uppercase; }
         .header .kasir-info { text-align: right; font-size: 14px; }
-        .header .cart-icon { background: #ffca28; color: black; padding: 8px; border-radius: 50%; position: relative; display: inline-block; margin-left: 8px; }
+        .header .cart-icon { background: #ffca28; color: black; padding: 8px; border-radius: 50%; position: relative; display: inline-block; margin-left: 8px; cursor: pointer; }
         .header .cart-count { position: absolute; top: -5px; right: -5px; background: #ffca28; color: black; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .scan-area { background: #4CAF50; padding: 15px; margin: 15px; border-radius: 10px; text-align: center; color: white; }
         .scan-area h3 { font-size: 18px; }
@@ -29,9 +28,13 @@
         .scan-btn { background: white; color: #4CAF50; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         #reader { width: 100%; margin-top: 10px; border-radius: 8px; display: none; }
         
-        .scan-cepat { padding: 0 15px; margin-top: 10px; }
-        .scan-cepat input { 
-            width: 100%; padding: 12px; border: 2px solid #4CAF50; border-radius: 8px; 
+        .scan-cepat { padding: 0 15px; margin-top: 10px; display: flex; gap: 10px; }
+        .scan-cepat input[type="number"] { 
+            width: 30%; padding: 12px; border: 2px solid #4CAF50; border-radius: 8px; 
+            text-align: center; font-size: 16px; font-weight: bold;
+        }
+        .scan-cepat input[type="text"] { 
+            width: 70%; padding: 12px; border: 2px solid #4CAF50; border-radius: 8px; 
             text-align: center; font-size: 16px; font-weight: bold;
         }
         
@@ -69,20 +72,44 @@
         .kembalian { font-size: 24px; color: #d32f2f; text-align: center; margin: 15px 0; font-weight: bold; }
         .checkbox-cetak { display:flex;align-items:center;gap:10px;margin:15px 0;font-size:16px; }
         .checkbox-cetak input { width:20px;height:20px; }
+        
+        .keranjang-item { 
+            background: #f9f9f9; 
+            padding: 10px; 
+            margin: 5px 0; 
+            border-radius: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .qty-control { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        .qty-btn { 
+            background: #333; 
+            color: white; 
+            border: none; 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 5px; 
+            font-weight: bold; 
+            cursor: pointer;
+        }
+        .btn-hapus-item { 
+            background: #d32f2f; 
+            color: white; 
+            border: none; 
+            padding: 5px 10px; 
+            border-radius: 5px; 
+            font-size: 12px; 
+            cursor: pointer;
+        }
     </style>
-    
-    <!-- DAFTAR SERVICE WORKER -->
-    <script>
-    if('serviceWorker' in navigator){
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js');
-        });
-    }
-    </script>
 </head>
 <body>
     <script>
-// ======== SISTEM KUNCI LISENSI KASIR ========
 const LISENSI = {
   namaToko: "TOKO ANIS",
   kodeLisensi: "KSR-2026-AN01",
@@ -110,147 +137,148 @@ if(hariIni > LISENSI.expired){
     </div>`;
   });
 }
-// ======== AKHIR SISTEM KUNCI ========
-    </script>
-    <div class="header">
-        <div class="title">
-            <h1>KASIR DIGITAL ANIS</h1>
-            <h2 id="namaToko">TOKO ANIS</h2>
-        </div>
-        <div class="kasir-info">
-            Kasir: <span id="namaKasir">-</span>
-            <div class="cart-icon">🛒<div class="cart-count" id="jumlahItem">0</div></div>
-        </div>
+</script>
+    
+<div class="header">
+    <div class="title">
+        <h1>KASIR DIGITAL ANIS</h1>
+        <h2 id="namaToko">TOKO ANIS</h2>
     </div>
-
-    <div class="scan-area">
-        <h3>SCAN BARANG</h3>
-        <p id="statusScan">Siap scan...</p>
-        <div id="reader"></div>
-        <div class="scan-buttons">
-            <button class="scan-btn" onclick="resetKeranjang()">🔄 RESET</button>
-            <button class="scan-btn" onclick="mulaiScan()">📷 SCAN</button>
-            <button class="scan-btn" onclick="logout()">🚪 LOGOUT</button>
-        </div>
+    <div class="kasir-info">
+        Kasir: <span id="namaKasir">-</span>
+        <div class="cart-icon" onclick="bukaKeranjang()">🛒<div class="cart-count" id="jumlahItem">0</div></div>
     </div>
+</div>
 
-    <div class="scan-cepat">
-    <input type="number" id="inputQty" placeholder="Qty" value="1" min="1">
-    <input type="text" id="inputScanCepat" placeholder="Klik sini lalu tembak barcode..." 
-           onkeypress="if(event.key==='Enter') scanCepat()">
+<div class="scan-area">
+    <h3>SCAN BARANG</h3>
+    <p id="statusScan">Siap scan...</p>
+    <div id="reader"></div>
+    <div class="scan-buttons">
+        <button class="scan-btn" onclick="resetKeranjang()">🔄 RESET</button>
+        <button class="scan-btn" onclick="mulaiScan()">📷 SCAN</button>
+        <button class="scan-btn" onclick="logout()">🚪 LOGOUT</button>
     </div>
+</div>
 
-    <div class="produk-header">
-        <h3>Daftar Produk</h3>
-        <div class="tombol-aksi">
-            <button class="btn-header btn-setting" onclick="bukaSetting()">⚙️ PENGATURAN</button>
-            <button class="btn-header btn-hapus-data" onclick="hapusSemuaProduk()">🗑️ HAPUS</button>
-            <button class="btn-header btn-laporan" onclick="bukaLaporan()">📊 LAPORAN</button>
-        </div>
+<div class="scan-cepat">
+<input type="number" id="inputQty" placeholder="Qty" value="1" min="1">
+<input type="text" id="inputScanCepat" placeholder="Klik sini lalu tembak barcode..." 
+       onkeypress="if(event.key==='Enter') scanCepat()">
+</div>
+
+<div class="produk-header">
+    <h3>Daftar Produk</h3>
+    <div class="tombol-aksi">
+        <button class="btn-header btn-setting" onclick="bukaSetting()">⚙️ PENGATURAN</button>
+        <button class="btn-header btn-hapus-data" onclick="hapusSemuaProduk()">🗑️ HAPUS</button>
+        <button class="btn-header btn-laporan" onclick="bukaLaporan()">📊 LAPORAN</button>
     </div>
+</div>
 
-    <div class="kategori" id="listKategori">
-        <button class="kategori-btn aktif" onclick="filterKategori('Semua', this)">Semua</button>
-        <button class="kategori-btn" onclick="filterKategori('Rokok', this)">Rokok</button>
-        <button class="kategori-btn" onclick="filterKategori('Minuman', this)">Minuman</button>
-        <button class="kategori-btn" onclick="filterKategori('Mie', this)">Mie</button>
-        <button class="kategori-btn" onclick="filterKategori('Snack', this)">Snack</button>
-        <button class="kategori-btn" onclick="filterKategori('Lainnya', this)">Lainnya</button>
+<div class="kategori" id="listKategori">
+    <button class="kategori-btn aktif" onclick="filterKategori('Semua', this)">Semua</button>
+    <button class="kategori-btn" onclick="filterKategori('Rokok', this)">Rokok</button>
+    <button class="kategori-btn" onclick="filterKategori('Minuman', this)">Minuman</button>
+    <button class="kategori-btn" onclick="filterKategori('Mie', this)">Mie</button>
+    <button class="kategori-btn" onclick="filterKategori('Snack', this)">Snack</button>
+    <button class="kategori-btn" onclick="filterKategori('Lainnya', this)">Lainnya</button>
+</div>
+
+<div class="list-produk" id="listProduk"></div>
+
+<div class="footer">
+    <div class="subtotal">
+        <span>SUBTOTAL:</span>
+        <span>Rp<span id="totalHarga">0</span></span>
     </div>
+    <button class="btn-bayar" onclick="bukaBayar()">💰 PILIH METODE BAYAR</button>
+</div>
 
-    <div class="list-produk" id="listProduk"></div>
+<button class="btn-add-produk" onclick="bukaModalTambah()">+</button>
 
-    <div class="footer">
-        <div class="subtotal">
-            <span>SUBTOTAL:</span>
-            <span>Rp<span id="totalHarga">0</span></span>
-        </div>
-        <button class="btn-bayar" onclick="bukaBayar()">💰 PILIH METODE BAYAR</button>
+<div id="modalKeranjang" class="modal">
+    <div class="modal-content">
+        <h3>Keranjang Belanja</h3>
+        <div id="isiKeranjang"></div>
+        <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:15px" onclick="document.getElementById('modalKeranjang').style.display='none'">TUTUP</button>
     </div>
+</div>
 
-    <button class="btn-add-produk" onclick="bukaModalTambah()">+</button>
-
-    <!-- MODAL LOGIN -->
-    <div id="modalLogin" class="modal" style="display:block">
-        <div class="modal-content">
-            <h3>Login Kasir</h3>
-            <input type="text" id="inputNamaKasir" placeholder="Nama Kasir">
-            <button class="btn-bayar" style="margin-top:10px" onclick="loginKasir()">MASUK</button>
-        </div>
+<div id="modalLogin" class="modal" style="display:block">
+    <div class="modal-content">
+        <h3>Login Kasir</h3>
+        <input type="text" id="inputNamaKasir" placeholder="Nama Kasir">
+        <button class="btn-bayar" style="margin-top:10px" onclick="loginKasir()">MASUK</button>
     </div>
+</div>
 
-    <!-- MODAL PENGATURAN -->
-    <div id="modalSetting" class="modal">
-        <div class="modal-content">
-            <h3>Pengaturan Toko</h3>
-            <label>Nama Toko:</label>
-            <input type="text" id="inputNamaToko" placeholder="Contoh: TOKO BUDI">
-            <button class="btn-bayar" style="background:#4CAF50;margin-top:10px" onclick="simpanSetting()">SIMPAN</button>
-            <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:10px" onclick="tutupSetting()">BATAL</button>
-        </div>
+<div id="modalSetting" class="modal">
+    <div class="modal-content">
+        <h3>Pengaturan Toko</h3>
+        <label>Nama Toko:</label>
+        <input type="text" id="inputNamaToko" placeholder="Contoh: TOKO BUDI">
+        <button class="btn-bayar" style="background:#4CAF50;margin-top:10px" onclick="simpanSetting()">SIMPAN</button>
+        <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:10px" onclick="tutupSetting()">BATAL</button>
     </div>
+</div>
 
-    <!-- MODAL TAMBAH PRODUK -->
-    <div id="modalTambah" class="modal">
-        <div class="modal-content">
-            <h3>Tambah Produk Baru</h3>
-            <input type="text" id="namaBarang" placeholder="Nama Barang">
-            <input type="number" id="hargaBarang" placeholder="Harga Jual">
-            <input type="number" id="stokBarang" placeholder="Stok Awal">
-            <input type="text" id="barcodeBarang" placeholder="Barcode">
-            <select id="kategoriBarang">
-                <option value="Lainnya">Lainnya</option>
-                <option value="Rokok">Rokok</option>
-                <option value="Minuman">Minuman</option>
-                <option value="Mie">Mie</option>
-                <option value="Snack">Snack</option>
-            </select>
-            <button class="btn-bayar" style="background:#4CAF50;margin-top:10px" onclick="simpanProduk()">SIMPAN PRODUK</button>
-            <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:10px" onclick="tutupModalTambah()">BATAL</button>
-        </div>
+<div id="modalTambah" class="modal">
+    <div class="modal-content">
+        <h3>Tambah Produk Baru</h3>
+        <input type="text" id="namaBarang" placeholder="Nama Barang">
+        <input type="number" id="hargaBarang" placeholder="Harga Jual">
+        <input type="number" id="stokBarang" placeholder="Stok Awal">
+        <input type="text" id="barcodeBarang" placeholder="Barcode">
+        <select id="kategoriBarang">
+            <option value="Lainnya">Lainnya</option>
+            <option value="Rokok">Rokok</option>
+            <option value="Minuman">Minuman</option>
+            <option value="Mie">Mie</option>
+            <option value="Snack">Snack</option>
+        </select>
+        <button class="btn-bayar" style="background:#4CAF50;margin-top:10px" onclick="simpanProduk()">SIMPAN PRODUK</button>
+        <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:10px" onclick="tutupModalTambah()">BATAL</button>
     </div>
+</div>
 
-    <!-- MODAL BAYAR -->
-    <div id="modalBayar" class="modal">
-        <div class="modal-content">
-            <h3 style="text-align:center">Total: Rp <span id="totalBayar">0</span></h3>
-            <button class="btn-metode btn-cash" onclick="pilihCash()">💵 CASH</button>
-            <button class="btn-metode btn-debit" onclick="pilihDebit()">💳 DEBIT</button>
-            <button class="btn-metode btn-qr" onclick="pilihQR()">📱 QRIS</button>
-            <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:15px" onclick="tutupModalBayar()">TUTUP</button>
-        </div>
+<div id="modalBayar" class="modal">
+    <div class="modal-content">
+        <h3 style="text-align:center">Total: Rp <span id="totalBayar">0</span></h3>
+        <button class="btn-metode btn-cash" onclick="pilihCash()">💵 CASH</button>
+        <button class="btn-metode btn-debit" onclick="pilihDebit()">💳 DEBIT</button>
+        <button class="btn-metode btn-qr" onclick="pilihQR()">📱 QRIS</button>
+        <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:15px" onclick="tutupModalBayar()">TUTUP</button>
     </div>
+</div>
 
-    <!-- MODAL CASH -->
-    <div id="modalCash" class="modal">
-        <div class="modal-content">
-            <h3>Pembayaran Tunai</h3>
-            <p>Total: Rp <span id="totalCash">0</span></p>
-            <input type="number" id="uangDiterima" placeholder="Uang Diterima" oninput="hitungKembalian()">
-            <div class="kembalian">Kembalian: Rp <span id="kembalian">0</span></div>
-            
-            <label class="checkbox-cetak">
-                <input type="checkbox" id="cetakStruk" checked>
-                <span>Cetak Struk & Buka Laci</span>
-            </label>
-            
-            <button class="btn-bayar" style="background:#4CAF50" onclick="selesaiBayar('Cash')">SELESAI</button>
-            <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:10px" onclick="tutupModalCash()">BATAL</button>
-        </div>
+<div id="modalCash" class="modal">
+    <div class="modal-content">
+        <h3>Pembayaran Tunai</h3>
+        <p>Total: Rp <span id="totalCash">0</span></p>
+        <input type="number" id="uangDiterima" placeholder="Uang Diterima" oninput="hitungKembalian()">
+        <div class="kembalian">Kembalian: Rp <span id="kembalian">0</span></div>
+        
+        <label class="checkbox-cetak">
+            <input type="checkbox" id="cetakStruk" checked>
+            <span>Cetak Struk & Buka Laci</span>
+        </label>
+        
+        <button class="btn-bayar" style="background:#4CAF50" onclick="selesaiBayar('Cash')">SELESAI</button>
+        <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:10px" onclick="tutupModalCash()">BATAL</button>
     </div>
+</div>
 
-    <!-- MODAL LAPORAN -->
-    <div id="modalLaporan" class="modal">
-        <div class="modal-content">
-            <h3>Laporan Penjualan</h3>
-            <div id="isiLaporan"></div>
-            <h4 style="margin-top:15px">Total Pemasukan: Rp <span id="totalOmzet">0</span></h4>
-            <button class="btn-bayar" style="background:#d32f2f;margin-top:15px" onclick="hapusLaporan()">HAPUS LAPORAN</button>
-            <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:10px" onclick="tutupLaporan()">TUTUP</button>
-        </div>
+<div id="modalLaporan" class="modal">
+    <div class="modal-content">
+        <h3>Laporan Penjualan</h3>
+        <div id="isiLaporan"></div>
+        <h4 style="margin-top:15px">Total Pemasukan: Rp <span id="totalOmzet">0</span></h4>
+        <button class="btn-bayar" style="background:#d32f2f;margin-top:15px" onclick="hapusLaporan()">HAPUS LAPORAN</button>
+        <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:10px" onclick="tutupLaporan()">TUTUP</button>
     </div>
-
-<script>
+    </div>
+    <script>
 let produk = JSON.parse(localStorage.getItem('daftarProduk')) || [];
 let keranjang = [];
 let laporan = JSON.parse(localStorage.getItem('laporanJual')) || [];
@@ -404,8 +432,10 @@ function onScanSuccess(decodedText) {
     document.getElementById('statusScan').innerText = 'Siap scan...';
     playBeep();
     const item = produk.find(p => p.barcode == decodedText);
-    if(item) tambahKeranjang(item.id);
+    const qty = parseInt(document.getElementById('inputQty').value) || 1;
+    if(item) tambahKeranjang(item.id, qty);
     else alert('Barang tidak ditemukan! Tambah dulu via tombol +');
+    document.getElementById('inputQty').value = '1';
 }
 
 function tambahKeranjang(id, qty = 1) {
@@ -442,6 +472,7 @@ function updateKeranjang() {
     document.getElementById('totalBayar').innerText = total.toLocaleString('id-ID');
     document.getElementById('totalCash').innerText = total.toLocaleString('id-ID');
 }
+
 function bukaKeranjang() {
     const div = document.getElementById('isiKeranjang');
     div.innerHTML = '';
@@ -488,7 +519,8 @@ function hapusItem(idItem) {
         updateKeranjang();
         bukaKeranjang();
     }
-    }
+}
+
 function resetKeranjang() {
     if (confirm('Kosongkan keranjang?')) {
         keranjang = [];
@@ -528,10 +560,7 @@ function pilihQR() {
 }
 
 function cetakDanBukaLaci(total, metode, transaksi, mauCetak) {
-    if (!mauCetak) {
-        console.log('Transaksi tanpa cetak struk');
-        return;
-    }
+    if (!mauCetak) return;
     
     let struk = `${namaToko}\n`;
     struk += `================\n`;
@@ -586,7 +615,7 @@ function selesaiBayar(metode) {
     localStorage.setItem('laporanJual', JSON.stringify(laporan));
     
     keranjang.forEach(item => {
-        const prod = produk.find(p => p.id === item.id);
+        const prod = produk.find(p => p.id === item.idProduk);
         if (prod) prod.stok -= item.qty;
     });
     localStorage.setItem('daftarProduk', JSON.stringify(produk));
@@ -599,6 +628,7 @@ function selesaiBayar(metode) {
     updateKeranjang();
     renderProduk();
     tutupModalCash();
+    tutupModalBayar();
 }
 
 function bukaLaporan() {
@@ -624,17 +654,12 @@ function bukaLaporan() {
 }
 function tutupLaporan() { document.getElementById('modalLaporan').style.display = 'none'; }
 function hapusLaporan() {
-    if(confirm('Yakin hapus semua laporan?')) {
+    if(confirm('Hapus semua laporan?')) {
+        localStorage.removeItem('laporanJual');
         laporan = [];
-        localStorage.setItem('laporanJual', JSON.stringify(laporan));
         bukaLaporan();
     }
 }
-
-renderProduk();
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('namaToko').innerText = LISENSI.namaToko;
-});    
 </script>
 </body>
-            </html>
+</html>
