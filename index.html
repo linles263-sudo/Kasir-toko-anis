@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR DIGITAL PRO</title>
+    <title>KASIR DIGITAL ANIS</title>
+    
+    <!-- PWA SETUP -->
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kasir Anis">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
@@ -61,27 +70,32 @@
         .checkbox-cetak { display:flex;align-items:center;gap:10px;margin:15px 0;font-size:16px; }
         .checkbox-cetak input { width:20px;height:20px; }
     </style>
+    
+    <!-- DAFTAR SERVICE WORKER -->
+    <script>
+    if('serviceWorker' in navigator){
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js');
+        });
+    }
+    </script>
 </head>
 <body>
     <script>
 // ======== SISTEM KUNCI LISENSI KASIR ========
 const LISENSI = {
-  namaToko: "TOKO ANIS",             // ← Ganti nama toko pembeli
-  kodeLisensi: "KSR-2026-AN01",      // ← SB = Semb, 01 = pembeli ke-1
-  expired: "2029-05-03",             // ← Aktif 1 tahun
-  hpAdmin: "62895351432524"           // ← No WA lu Prof
+  namaToko: "TOKO ANIS",
+  kodeLisensi: "KSR-2026-AN01",
+  expired: "2029-05-03",
+  hpAdmin: "62895351432524"
 };
 
-// Cek tanggal hari ini vs tanggal expired
 const hariIni = new Date().toISOString().slice(0,10);
 if(hariIni > LISENSI.expired){
   document.addEventListener('DOMContentLoaded', function() {
-    // 1. HAPUS TOTAL SEMUA ISI KASIR
     document.body.innerHTML = '';
-    
-    // 2. TEMPEL LAYAR KUNCI FULL SCREEN ANTI SCROLL
     document.body.innerHTML = `
-    <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#ffffff; z-index:999999; display:flex; align-items:center; justify-content:center; text-align:center; font-family:sans-serif; padding:20px; box-sizing:border-box;">
+    <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#ffffff; z-index:999; display:flex; align-items:center; justify-content:center; text-align:center; font-family:sans-serif; padding:20px; box-sizing:border-box;">
       <div>
         <div style="font-size:60px;">🔒</div>
         <h1 style="color:#dc2626; margin:10px 0; font-size:28px;">LISENSI HABIS</h1>
@@ -95,13 +109,13 @@ if(hariIni > LISENSI.expired){
       </div>
     </div>`;
   });
-        }
+}
 // ======== AKHIR SISTEM KUNCI ========
     </script>
     <div class="header">
         <div class="title">
-            <h1>KASIR DIGITAL PRO</h1>
-            <h2 id="namaToko">TOKO PUNTEN</h2>
+            <h1>KASIR DIGITAL ANIS</h1>
+            <h2 id="namaToko">TOKO ANIS</h2>
         </div>
         <div class="kasir-info">
             Kasir: <span id="namaKasir">-</span>
@@ -206,7 +220,7 @@ if(hariIni > LISENSI.expired){
         </div>
     </div>
 
-    <!-- MODAL CASH - UPDATE: ADA CHECKBOX CETAK STRUK -->
+    <!-- MODAL CASH -->
     <div id="modalCash" class="modal">
         <div class="modal-content">
             <h3>Pembayaran Tunai</h3>
@@ -229,7 +243,7 @@ if(hariIni > LISENSI.expired){
         <div class="modal-content">
             <h3>Laporan Penjualan</h3>
             <div id="isiLaporan"></div>
-            <h4 style="margin-top:15px">Total Omzet: Rp <span id="totalOmzet">0</span></h4>
+            <h4 style="margin-top:15px">Total Pemasukan: Rp <span id="totalOmzet">0</span></h4>
             <button class="btn-bayar" style="background:#d32f2f;margin-top:15px" onclick="hapusLaporan()">HAPUS LAPORAN</button>
             <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:10px" onclick="tutupLaporan()">TUTUP</button>
         </div>
@@ -432,7 +446,7 @@ function pilihCash() {
     document.getElementById('modalCash').style.display = 'block';
     document.getElementById('uangDiterima').value = '';
     document.getElementById('kembalian').innerText = '0';
-    document.getElementById('cetakStruk').checked = true; // Default centang
+    document.getElementById('cetakStruk').checked = true;
 }
 function tutupModalCash() { document.getElementById('modalCash').style.display = 'none'; }
 
@@ -452,9 +466,7 @@ function pilihQR() {
     selesaiBayar('QRIS'); 
 }
 
-// ===== FITUR BARU: CETAK STRUK + BUKA LACI OTOMATIS DENGAN PILIHAN =====
 function cetakDanBukaLaci(total, metode, transaksi, mauCetak) {
-    // Kalo user ga centang "Cetak Struk", langsung return aja
     if (!mauCetak) {
         console.log('Transaksi tanpa cetak struk');
         return;
@@ -479,12 +491,9 @@ function cetakDanBukaLaci(total, metode, transaksi, mauCetak) {
         struk += `KEMBALI: Rp ${kembali > 0 ? kembali.toLocaleString('id-ID') : '0'}\n`;
     }
     struk += `================\n`;
-    struk += `Terima kasih!\n\n\n`;
+    struk += `Terima kasih!\n\n`;
     
-    // KODE TENDANGAN BUAT BUKA LACI: ESC p 0 25 250
     const bukaLaci = '\x1B\x70\x00\x19\xFA'; 
-    
-    // Kirim ke RawBT - otomatis cetak + buka laci
     const dataPrint = encodeURIComponent(struk + bukaLaci);
     window.location.href = `rawbt://print?text=${dataPrint}`;
 }
@@ -499,15 +508,13 @@ function selesaiBayar(metode) {
         items: [...keranjang]
     };
     
-    // CEK APAKAH USER MAU CETAK STRUK - Default true untuk non-cash
     let mauCetak = true;
     if(metode === 'Cash') {
         mauCetak = document.getElementById('cetakStruk').checked;
     }
     
-    // PANGGIL FITUR CETAK + BUKA LACI
     cetakDanBukaLaci(total, metode, transaksi, mauCetak);
-        // AMBIL DETAIL NAMA BARANG
+    
     let daftarItem = keranjang.map(item => {
         return `${item.nama} ${item.qty}x @${item.harga.toLocaleString('id-ID')}`;
     }).join(" | ");
@@ -546,7 +553,7 @@ function bukaLaporan() {
             div.innerHTML += `<div class="laporan-item">
                 <b>#${i+1} - ${trx.waktu}</b><br>
                 Kasir: ${trx.kasir} | ${trx.metode}<br>
-                                Items: ${trx.items || '-'} <br>
+                Items: ${trx.items || '-'} <br>
                 Total: Rp ${trx.total.toLocaleString('id-ID')}
             </div>`;
         });
@@ -564,10 +571,9 @@ function hapusLaporan() {
 }
 
 renderProduk();
-// Update nama toko otomatis dari config LISENSI
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('namaToko').innerText = LISENSI.namaToko;
 });    
 </script>
 </body>
-    </html>
+            </html>
