@@ -4,141 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KASIR DIGITAL ANIS</title>
-    
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Kasir Anis">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background: #f5f5f5; padding-bottom: 120px; }
-        .header { background: #d32f2f; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .header .title h1 { font-size: 14px; font-weight: normal; }
-        .header .title h2 { font-size: 24px; text-transform: uppercase; }
-        .header .kasir-info { text-align: right; font-size: 14px; }
-        .header .cart-icon { background: #ffca28; color: black; padding: 8px; border-radius: 50%; position: relative; display: inline-block; margin-left: 8px; cursor: pointer; }
-        .header .cart-count { position: absolute; top: -5px; right: -5px; background: #ffca28; color: black; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .scan-area { background: #4CAF50; padding: 15px; margin: 15px; border-radius: 10px; text-align: center; color: white; }
-        .scan-area h3 { font-size: 18px; }
-        .scan-buttons { display: flex; justify-content: space-around; margin-top: 10px; }
-        .scan-btn { background: white; color: #4CAF50; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+       .header { background: #d32f2f; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+       .header .title h1 { font-size: 14px; font-weight: normal; }
+       .header .title h2 { font-size: 24px; text-transform: uppercase; }
+       .header .kasir-info { text-align: right; font-size: 14px; }
+       .header .cart-icon { background: #ffca28; color: black; padding: 8px; border-radius: 50%; position: relative; display: inline-block; margin-left: 8px; cursor: pointer; }
+       .header .cart-count { position: absolute; top: -5px; right: -5px; background: #ffca28; color: black; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+       .scan-area { background: #4CAF50; padding: 15px; margin: 15px; border-radius: 10px; text-align: center; color: white; }
+       .scan-area h3 { font-size: 18px; }
+       .scan-buttons { display: flex; justify-content: space-around; margin-top: 10px; }
+       .scan-btn { background: white; color: #4CAF50; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         #reader { width: 100%; margin-top: 10px; border-radius: 8px; display: none; }
-        
-        .scan-cepat { padding: 0 15px; margin-top: 10px; display: flex; gap: 10px; }
-        .scan-cepat input[type="number"] { 
-            width: 30%; padding: 12px; border: 2px solid #4CAF50; border-radius: 8px; 
-            text-align: center; font-size: 16px; font-weight: bold;
-        }
-        .scan-cepat input[type="text"] { 
-            width: 70%; padding: 12px; border: 2px solid #4CAF50; border-radius: 8px; 
-            text-align: center; font-size: 16px; font-weight: bold;
-        }
-        
-        .produk-header { padding: 0 15px; margin-top: 15px; text-align: center; }
-        .produk-header h3 { font-size: 18px; margin-bottom: 10px; }
-        .tombol-aksi { display: flex; justify-content: center; gap: 8px; }
-        .btn-header { color: white; border: none; padding: 8px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; flex: 1; max-width: 110px; }
-        .btn-laporan { background: #2196F3; }
-        .btn-hapus-data { background: #d32f2f; }
-        .btn-setting { background: #FF9800; }
-        
-        .kategori { display: flex; overflow-x: auto; padding: 10px 15px; gap: 10px; }
-        .kategori-btn { background: #e0e0e0; border: none; padding: 8px 15px; border-radius: 20px; white-space: nowrap; }
-        .kategori-btn.aktif { background: #333; color: white; }
-        .list-produk { padding: 0 15px; }
-        .item-produk { background: white; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .item-info .nama { font-weight: bold; }
-        .item-info .stok { background: #e8f5e9; color: #4CAF50; padding: 2px 8px; border-radius: 10px; font-size: 12px; margin-left: 5px; }
-        .item-info .barcode { color: #757575; font-size: 13px; }
-        .item-aksi .harga { color: #d32f2f; font-weight: bold; font-size: 18px; text-align: right; }
-        .btn-tambah { background: #333; color: white; border: none; padding: 8px 20px; border-radius: 5px; margin-top: 5px; font-weight: bold; }
-        .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
-        .subtotal { display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; margin-bottom: 10px; }
-        .btn-bayar { background: #d32f2f; color: white; width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; }
-        .btn-add-produk { background: #4CAF50; color: white; position: fixed; bottom: 130px; right: 20px; border-radius: 50%; width: 60px; height: 60px; font-size: 30px; border: none; box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: white; margin: 15% auto; padding: 20px; width: 90%; border-radius: 10px; max-height: 75vh; overflow-y: auto; }
-        .modal input, .modal select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
-        .kosong { text-align: center; padding: 40px 20px; color: #757575; }
-        .laporan-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 14px; }
-        .btn-metode { width: 100%; margin: 8px 0; font-size: 18px; padding: 15px; border-radius: 8px; border: none; font-weight: bold; }
-        .btn-cash { background: #4CAF50; color: white; }
-        .btn-debit { background: #2196F3; color: white; }
-        .btn-qr { background: #FF9800; color: white; }
-        .kembalian { font-size: 24px; color: #d32f2f; text-align: center; margin: 15px 0; font-weight: bold; }
-        .checkbox-cetak { display:flex;align-items:center;gap:10px;margin:15px 0;font-size:16px; }
-        .checkbox-cetak input { width:20px;height:20px; }
-        
-        .keranjang-item { 
-            background: #f9f9f9; 
-            padding: 10px; 
-            margin: 5px 0; 
-            border-radius: 8px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-        }
-        .qty-control { 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-        }
-        .qty-btn { 
-            background: #333; 
-            color: white; 
-            border: none; 
-            width: 28px; 
-            height: 28px; 
-            border-radius: 5px; 
-            font-weight: bold; 
-            cursor: pointer;
-        }
-        .btn-hapus-item { 
-            background: #d32f2f; 
-            color: white; 
-            border: none; 
-            padding: 5px 10px; 
-            border-radius: 5px; 
-            font-size: 12px; 
-            cursor: pointer;
-        }
+       .scan-cepat { padding: 0 15px; margin-top: 10px; display: flex; gap: 10px; }
+       .scan-cepat input[type="number"] { width: 30%; padding: 12px; border: 2px solid #4CAF50; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; }
+       .scan-cepat input[type="text"] { width: 70%; padding: 12px; border: 2px solid #4CAF50; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; }
+       .produk-header { padding: 0 15px; margin-top: 15px; text-align: center; }
+       .produk-header h3 { font-size: 18px; margin-bottom: 10px; }
+       .tombol-aksi { display: flex; justify-content: center; gap: 8px; }
+       .btn-header { color: white; border: none; padding: 8px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; flex: 1; max-width: 110px; }
+       .btn-laporan { background: #2196F3; }
+       .btn-hapus-data { background: #d32f2f; }
+       .btn-setting { background: #FF9800; }
+       .kategori { display: flex; overflow-x: auto; padding: 10px 15px; gap: 10px; }
+       .kategori-btn { background: #e0e0e0; border: none; padding: 8px 15px; border-radius: 20px; white-space: nowrap; }
+       .kategori-btn.aktif { background: #333; color: white; }
+       .list-produk { padding: 0 15px; }
+       .item-produk { background: white; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+       .item-info .nama { font-weight: bold; }
+       .item-info .stok { background: #e8f5e9; color: #4CAF50; padding: 2px 8px; border-radius: 10px; font-size: 12px; margin-left: 5px; }
+       .item-info .barcode { color: #757575; font-size: 13px; }
+       .item-aksi .harga { color: #d32f2f; font-weight: bold; font-size: 18px; text-align: right; }
+       .btn-tambah { background: #333; color: white; border: none; padding: 8px 20px; border-radius: 5px; margin-top: 5px; font-weight: bold; cursor: pointer; }
+       .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
+       .subtotal { display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+       .btn-bayar { background: #d32f2f; color: white; width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
+       .btn-add-produk { background: #4CAF50; color: white; position: fixed; bottom: 130px; right: 20px; border-radius: 50%; width: 60px; height: 60px; font-size: 30px; border: none; box-shadow: 0 3px 6px rgba(0,0,0,0.3); cursor: pointer; }
+       .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+       .modal-content { background: white; margin: 15% auto; padding: 20px; width: 90%; border-radius: 10px; max-height: 75vh; overflow-y: auto; }
+       .modal input,.modal select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+       .kosong { text-align: center; padding: 40px 20px; color: #757575; }
+       .laporan-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 14px; }
+       .btn-metode { width: 100%; margin: 8px 0; font-size: 18px; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+       .btn-cash { background: #4CAF50; color: white; }
+       .btn-debit { background: #2196F3; color: white; }
+       .btn-qr { background: #FF9800; color: white; }
+       .kembalian { font-size: 24px; color: #d32f2f; text-align: center; margin: 15px 0; font-weight: bold; }
+       .checkbox-cetak { display:flex;align-items:center;gap:10px;margin:15px 0;font-size:16px; }
+       .checkbox-cetak input { width:20px;height:20px; }
+       .keranjang-item { background: #f9f9f9; padding: 10px; margin: 5px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+       .qty-control { display: flex; align-items: center; gap: 8px; }
+       .qty-btn { background: #333; color: white; border: none; width: 28px; height: 28px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+       .btn-hapus-item { background: #d32f2f; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <script>
+<script>
 const LISENSI = {
   namaToko: "TOKO ANIS",
   kodeLisensi: "KSR-2026-AN01",
   expired: "2029-05-03",
   hpAdmin: "62895351432524"
 };
-
 const hariIni = new Date().toISOString().slice(0,10);
 if(hariIni > LISENSI.expired){
   document.addEventListener('DOMContentLoaded', function() {
     document.body.innerHTML = '';
-    document.body.innerHTML = `
-    <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#ffffff; z-index:999; display:flex; align-items:center; justify-content:center; text-align:center; font-family:sans-serif; padding:20px; box-sizing:border-box;">
-      <div>
-        <div style="font-size:60px;">🔒</div>
-        <h1 style="color:#dc2626; margin:10px 0; font-size:28px;">LISENSI HABIS</h1>
-        <p style="font-size:18px;">Aplikasi <b>${LISENSI.namaToko}</b> sudah expired<br>pada <b>${LISENSI.expired}</b></p>
-        <p>Silakan hubungi Admin untuk perpanjangan lisensi:</p>
-        <a href="https://wa.me/${LISENSI.hpAdmin}?text=Halo%20Admin,%20saya%20mau%20perpanjang%20lisensi%20${LISENSI.kodeLisensi}%20untuk%20${LISENSI.namaToko}" 
-           style="background:#25D366; color:white; padding:15px 25px; border-radius:8px; text-decoration:none; display:inline-block; margin-top:15px; font-weight:bold;">
-           Chat WA Admin Sekarang
-        </a>
-        <p style="margin-top:40px; font-size:12px; color:#666;">Kode Lisensi: ${LISENSI.kodeLisensi}</p>
-      </div>
-    </div>`;
+    document.body.innerHTML = `<div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#ffffff; z-index:999; display:flex; align-items:center; justify-content:center; text-align:center; font-family:sans-serif; padding:20px; box-sizing:border-box;">
+      <div><div style="font-size:60px;">🔒</div><h1 style="color:#dc2626; margin:10px 0; font-size:28px;">LISENSI HABIS</h1><p style="font-size:18px;">Aplikasi <b>${LISENSI.namaToko}</b> sudah expired<br>pada <b>${LISENSI.expired}</b></p><p>Silakan hubungi Admin untuk perpanjangan lisensi:</p><a href="https://wa.me/${LISENSI.hpAdmin}?text=Halo%20Admin,%20saya%20mau%20perpanjang%20lisensi%20${LISENSI.kodeLisensi}%20untuk%20${LISENSI.namaToko}" style="background:#25D366; color:white; padding:15px 25px; border-radius:8px; text-decoration:none; display:inline-block; margin-top:15px; font-weight:bold;">Chat WA Admin Sekarang</a><p style="margin-top:40px; font-size:12px; color:#666;">Kode Lisensi: ${LISENSI.kodeLisensi}</p></div></div>`;
   });
 }
 </script>
-    
+
 <div class="header">
     <div class="title">
         <h1>KASIR DIGITAL ANIS</h1>
@@ -163,8 +109,7 @@ if(hariIni > LISENSI.expired){
 
 <div class="scan-cepat">
 <input type="number" id="inputQty" placeholder="Qty" value="1" min="1">
-<input type="text" id="inputScanCepat" placeholder="Klik sini lalu tembak barcode..." 
-       onkeypress="if(event.key==='Enter') scanCepat()">
+<input type="text" id="inputScanCepat" placeholder="Klik sini lalu tembak barcode..." onkeypress="if(event.key==='Enter') scanCepat()">
 </div>
 
 <div class="produk-header">
@@ -242,6 +187,27 @@ if(hariIni > LISENSI.expired){
     </div>
 </div>
 
+<div id="modalEdit" class="modal">
+    <div class="modal-content">
+        <h3>Edit Produk</h3>
+        <input type="hidden" id="editId">
+        <input type="text" id="editNama" placeholder="Nama Barang">
+        <input type="number" id="editHarga" placeholder="Harga Jual">
+        <input type="number" id="editStok" placeholder="Stok">
+        <input type="text" id="editBarcode" placeholder="Barcode">
+        <select id="editKategori">
+            <option value="Lainnya">Lainnya</option>
+            <option value="Rokok">Rokok</option>
+            <option value="Minuman">Minuman</option>
+            <option value="Mie">Mie</option>
+            <option value="Snack">Snack</option>
+        </select>
+        <button class="btn-bayar" style="background:#FF9800;margin-top:10px" onclick="simpanEditProduk()">SIMPAN PERUBAHAN</button>
+        <button class="btn-bayar" style="background:#d32f2f;margin-top:10px" onclick="hapusProduk()">HAPUS PRODUK</button>
+        <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:10px" onclick="tutupEditProduk()">BATAL</button>
+    </div>
+</div>
+
 <div id="modalBayar" class="modal">
     <div class="modal-content">
         <h3 style="text-align:center">Total: Rp <span id="totalBayar">0</span></h3>
@@ -258,12 +224,10 @@ if(hariIni > LISENSI.expired){
         <p>Total: Rp <span id="totalCash">0</span></p>
         <input type="number" id="uangDiterima" placeholder="Uang Diterima" oninput="hitungKembalian()">
         <div class="kembalian">Kembalian: Rp <span id="kembalian">0</span></div>
-        
         <label class="checkbox-cetak">
             <input type="checkbox" id="cetakStruk" checked>
             <span>Cetak Struk & Buka Laci</span>
         </label>
-        
         <button class="btn-bayar" style="background:#4CAF50" onclick="selesaiBayar('Cash')">SELESAI</button>
         <button class="btn-bayar" style="background:#ccc;color:#333;margin-top:10px" onclick="tutupModalCash()">BATAL</button>
     </div>
@@ -303,7 +267,6 @@ function playBeep() {
 }
 
 document.getElementById('namaToko').innerText = namaToko;
-
 if (namaKasir) {
     document.getElementById('namaKasir').innerText = namaKasir;
     document.getElementById('modalLogin').style.display = 'none';
@@ -371,7 +334,7 @@ function hapusSemuaProduk() {
 function renderProduk() {
     const list = document.getElementById('listProduk');
     list.innerHTML = '';
-    let produkFilter = kategoriAktif === 'Semua' ? produk : produk.filter(p => p.kategori === kategoriAktif);
+    let produkFilter = kategoriAktif === 'Semua'? produk : produk.filter(p => p.kategori === kategoriAktif);
     if(produkFilter.length === 0) {
         list.innerHTML = '<div class="kosong">Belum ada produk.<br>Pencet tombol + untuk tambah barang.</div>';
         return;
@@ -385,7 +348,10 @@ function renderProduk() {
             </div>
             <div class="item-aksi">
                 <div class="harga">Rp${item.harga.toLocaleString('id-ID')}</div>
-                <button class="btn-tambah" onclick="tambahKeranjang(${item.id})">TAMBAH</button>
+                <div style="display:flex; gap:5px; margin-top:5px;">
+                  <button class="btn-tambah" style="background:#333; flex:1;" onclick="tambahKeranjang(${item.id})">TAMBAH</button>
+                  <button class="btn-tambah" style="background:#FF9800;" onclick="bukaEditProduk(${item.id})">EDIT</button>
+                </div>
             </div>
         </div>`;
     });
@@ -407,7 +373,7 @@ function simpanProduk() {
     const stok = parseInt(document.getElementById('stokBarang').value);
     const barcode = document.getElementById('barcodeBarang').value;
     const kategori = document.getElementById('kategoriBarang').value;
-    if (!nama || !harga || !stok || !barcode) return alert('Lengkapi semua!');
+    if (!nama ||!harga ||!stok ||!barcode) return alert('Lengkapi semua!');
     if (produk.find(p => p.barcode == barcode)) return alert('Barcode sudah ada!');
     produk.push({ id: Date.now(), barcode, nama, harga, stok, kategori });
     localStorage.setItem('daftarProduk', JSON.stringify(produk));
@@ -417,6 +383,47 @@ function simpanProduk() {
     document.getElementById('hargaBarang').value = '';
     document.getElementById('stokBarang').value = '';
     document.getElementById('barcodeBarang').value = '';
+}
+
+function bukaEditProduk(id) {
+    const p = produk.find(x => x.id === id);
+    if(!p) return;
+    document.getElementById('editId').value = p.id;
+    document.getElementById('editNama').value = p.nama;
+    document.getElementById('editHarga').value = p.harga;
+    document.getElementById('editStok').value = p.stok;
+    document.getElementById('editBarcode').value = p.barcode;
+    document.getElementById('editKategori').value = p.kategori;
+    document.getElementById('modalEdit').style.display = 'block';
+}
+
+function tutupEditProduk() {
+    document.getElementById('modalEdit').style.display = 'none';
+}
+
+function simpanEditProduk() {
+    const id = parseInt(document.getElementById('editId').value);
+    const idx = produk.findIndex(x => x.id === id);
+    if(idx === -1) return alert('Produk tidak ditemukan');
+    produk[idx].nama = document.getElementById('editNama').value;
+    produk[idx].harga = parseInt(document.getElementById('editHarga').value);
+    produk[idx].stok = parseInt(document.getElementById('editStok').value);
+    produk[idx].barcode = document.getElementById('editBarcode').value;
+    produk[idx].kategori = document.getElementById('editKategori').value;
+    localStorage.setItem('daftarProduk', JSON.stringify(produk));
+    tutupEditProduk();
+    renderProduk();
+    alert('Produk berhasil diupdate!');
+}
+
+function hapusProduk() {
+    if(!confirm('Yakin hapus produk ini?')) return;
+    const id = parseInt(document.getElementById('editId').value);
+    produk = produk.filter(x => x.id!== id);
+    localStorage.setItem('daftarProduk', JSON.stringify(produk));
+    tutupEditProduk();
+    renderProduk();
+    alert('Produk dihapus!');
 }
 
 function mulaiScan() {
@@ -442,18 +449,11 @@ function tambahKeranjang(id, qty = 1) {
     const barang = produk.find(p => p.id === id);
     if (!barang) return;
     if (barang.stok < qty) return alert('Stok tidak cukup!');
-    
     const diKeranjang = keranjang.find(k => k.idProduk === id);
     if (diKeranjang) {
         diKeranjang.qty += qty;
     } else {
-        keranjang.push({ 
-            idItem: Date.now() + Math.random(),
-            idProduk: id,
-            nama: barang.nama,
-            harga: barang.harga,
-            qty: qty 
-        });
+        keranjang.push({ idItem: Date.now() + Math.random(), idProduk: id, nama: barang.nama, harga: barang.harga, qty: qty });
     }
     localStorage.setItem('keranjangTemp', JSON.stringify(keranjang));
     updateKeranjang();
@@ -480,19 +480,7 @@ function bukaKeranjang() {
         div.innerHTML = '<p>Keranjang kosong</p>';
     } else {
         keranjang.forEach(item => {
-            div.innerHTML += `
-            <div class="keranjang-item">
-                <div>
-                    <b>${item.nama}</b><br>
-                    Rp${item.harga.toLocaleString('id-ID')} x ${item.qty}
-                </div>
-                <div class="qty-control">
-                    <button class="qty-btn" onclick="ubahQty('${item.idItem}', -1)">-</button>
-                    <span>${item.qty}</span>
-                    <button class="qty-btn" onclick="ubahQty('${item.idItem}', 1)">+</button>
-                    <button class="btn-hapus-item" onclick="hapusItem('${item.idItem}')">X</button>
-                </div>
-            </div>`;
+            div.innerHTML += `<div class="keranjang-item"><div><b>${item.nama}</b><br>Rp${item.harga.toLocaleString('id-ID')} x ${item.qty}</div><div class="qty-control"><button class="qty-btn" onclick="ubahQty('${item.idItem}', -1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="ubahQty('${item.idItem}', 1)">+</button><button class="btn-hapus-item" onclick="hapusItem('${item.idItem}')">X</button></div></div>`;
         });
     }
     document.getElementById('modalKeranjang').style.display = 'block';
@@ -501,7 +489,6 @@ function bukaKeranjang() {
 function ubahQty(idItem, tambah) {
     const item = keranjang.find(k => k.idItem == idItem);
     if(!item) return;
-    
     item.qty += tambah;
     if(item.qty <= 0) {
         hapusItem(idItem);
@@ -514,7 +501,7 @@ function ubahQty(idItem, tambah) {
 
 function hapusItem(idItem) {
     if(confirm('Hapus item ini dari keranjang?')) {
-        keranjang = keranjang.filter(k => k.idItem != idItem);
+        keranjang = keranjang.filter(k => k.idItem!= idItem);
         localStorage.setItem('keranjangTemp', JSON.stringify(keranjang));
         updateKeranjang();
         bukaKeranjang();
@@ -547,43 +534,26 @@ function hitungKembalian() {
     const total = keranjang.reduce((s,i)=>s+i.harga*i.qty,0);
     const bayar = parseInt(document.getElementById('uangDiterima').value) || 0;
     const kembali = bayar - total;
-    document.getElementById('kembalian').innerText = kembali > 0 ? kembali.toLocaleString('id-ID') : '0';
+    document.getElementById('kembalian').innerText = kembali > 0? kembali.toLocaleString('id-ID') : '0';
 }
 
-function pilihDebit() { 
-    tutupModalBayar(); 
-    selesaiBayar('Debit'); 
-}
-function pilihQR() { 
-    tutupModalBayar(); 
-    selesaiBayar('QRIS'); 
-}
+function pilihDebit() { tutupModalBayar(); selesaiBayar('Debit'); }
+function pilihQR() { tutupModalBayar(); selesaiBayar('QRIS'); }
 
 function cetakDanBukaLaci(total, metode, transaksi, mauCetak) {
     if (!mauCetak) return;
-    
-    let struk = `${namaToko}\n`;
-    struk += `================\n`;
-    struk += `Kasir: ${namaKasir}\n`;
-    struk += `Waktu: ${transaksi.waktu}\n`;
-    struk += `Metode: ${metode}\n`;
-    struk += `================\n`;
+    let struk = `${namaToko}\n================\nKasir: ${namaKasir}\nWaktu: ${transaksi.waktu}\nMetode: ${metode}\n================\n`;
     transaksi.items.forEach(item => {
-        struk += `${item.nama}\n`;
-        struk += `${item.qty} x ${item.harga.toLocaleString('id-ID')} = Rp${(item.harga*item.qty).toLocaleString('id-ID')}\n`;
+        struk += `${item.nama}\n${item.qty} x ${item.harga.toLocaleString('id-ID')} = Rp${(item.harga*item.qty).toLocaleString('id-ID')}\n`;
     });
-    struk += `================\n`;
-    struk += `TOTAL: Rp ${total.toLocaleString('id-ID')}\n`;
+    struk += `================\nTOTAL: Rp ${total.toLocaleString('id-ID')}\n`;
     if(metode === 'Cash') {
         const bayar = parseInt(document.getElementById('uangDiterima').value) || 0;
         const kembali = bayar - total;
-        struk += `TUNAI: Rp ${bayar.toLocaleString('id-ID')}\n`;
-        struk += `KEMBALI: Rp ${kembali > 0 ? kembali.toLocaleString('id-ID') : '0'}\n`;
+        struk += `TUNAI: Rp ${bayar.toLocaleString('id-ID')}\nKEMBALI: Rp ${kembali > 0? kembali.toLocaleString('id-ID') : '0'}\n`;
     }
-    struk += `================\n`;
-    struk += `Terima kasih!\n\n`;
-    
-    const bukaLaci = '\x1B\x70\x00\x19\xFA'; 
+    struk += `================\nTerima kasih!\n\n`;
+    const bukaLaci = '\x1B\x70\x00\x19\xFA';
     const dataPrint = encodeURIComponent(struk + bukaLaci);
     window.location.href = `rawbt://print?text=${dataPrint}`;
 }
@@ -597,32 +567,31 @@ function selesaiBayar(metode) {
         metode: metode,
         items: [...keranjang]
     };
-    
+
     let mauCetak = true;
     if(metode === 'Cash') {
         mauCetak = document.getElementById('cetakStruk').checked;
     }
-    
+
     cetakDanBukaLaci(total, metode, transaksi, mauCetak);
-    
+
     let daftarItem = keranjang.map(item => {
         return `${item.nama} ${item.qty}x @${item.harga.toLocaleString('id-ID')}`;
     }).join(" | ");
-    
+
     transaksi.items = daftarItem;
- 
     laporan.push(transaksi);
     localStorage.setItem('laporanJual', JSON.stringify(laporan));
-    
+
     keranjang.forEach(item => {
         const prod = produk.find(p => p.id === item.idProduk);
         if (prod) prod.stok -= item.qty;
     });
     localStorage.setItem('daftarProduk', JSON.stringify(produk));
-    
+
     let pesanBerhasil = `Transaksi ${metode} BERHASIL!\nTotal: Rp ${total.toLocaleString('id-ID')}`;
     if (!mauCetak) pesanBerhasil += '\n\nStruk tidak dicetak.';
-    
+
     alert(pesanBerhasil);
     keranjang = [];
     updateKeranjang();
@@ -662,4 +631,4 @@ function hapusLaporan() {
 }
 </script>
 </body>
-</html>
+    </html>
